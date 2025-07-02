@@ -12,16 +12,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up SSH
+    - name: Set up SSH and known_hosts
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H 51.20.128.230 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2 and run Docker container
       run: |
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh ec2-user@51.20.128.230 << 'EOF'
           if [ ! -d event_manager ]; then
             git clone https://github.com/Yusufshaik19/event_manager.git
           fi
@@ -32,3 +32,4 @@ jobs:
           docker build -t event-manager-app .
           docker run -d -p 5000:5000 --name event-manager event-manager-app
         EOF
+
